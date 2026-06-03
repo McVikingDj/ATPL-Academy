@@ -390,7 +390,16 @@ function renderDashboardState() {
 }
 
 function renderCourses() {
-  subjectKeys().forEach((subjectKey) => {
+  const sortedCourseKeys = subjectKeys().sort((firstKey, secondKey) => {
+    const firstAvailable = isCourseAvailable(firstKey);
+    const secondAvailable = isCourseAvailable(secondKey);
+    if (firstAvailable === secondAvailable) {
+      return subjects[firstKey].title.localeCompare(subjects[secondKey].title);
+    }
+    return firstAvailable ? -1 : 1;
+  });
+
+  sortedCourseKeys.forEach((subjectKey) => {
     const subject = subjects[subjectKey];
     const available = isCourseAvailable(subjectKey);
     const completed = completedCount(subjectKey);
