@@ -179,8 +179,17 @@ body.dark .login-panel {
   height: 64px;
   margin-bottom: 0;
   border-radius: 8px;
-  background: linear-gradient(135deg, #49c261, #43b3d9);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 42%),
+    linear-gradient(135deg, #49c261, #43b3d9);
   box-shadow: 0 12px 28px rgba(44, 180, 116, 0.34);
+}
+
+.brand-mark.small {
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  box-shadow: 0 8px 18px rgba(44, 180, 116, 0.24);
 }
 
 .wing,
@@ -197,6 +206,20 @@ body.dark .login-panel {
   border-radius: 999px;
   background: #ffffff;
   transform: rotate(-14deg);
+}
+
+.brand-mark.small .wing {
+  top: 20px;
+  left: 9px;
+  width: 26px;
+  height: 5px;
+}
+
+.brand-mark.small .wing::after {
+  top: -8px;
+  left: 13px;
+  width: 10px;
+  height: 18px;
 }
 
 .wing::after {
@@ -219,6 +242,13 @@ body.dark .login-panel {
   border-right: 2px solid rgba(255, 255, 255, 0.78);
   border-bottom: 2px solid rgba(255, 255, 255, 0.78);
   border-radius: 0 0 16px 0;
+}
+
+.brand-mark.small .radar {
+  right: 6px;
+  bottom: 5px;
+  width: 13px;
+  height: 13px;
 }
 
 .eyebrow {
@@ -460,6 +490,13 @@ body.dark .login-panel {
   background: linear-gradient(180deg, var(--sky) 70%, rgba(189, 235, 240, 0));
 }
 
+.topbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
 .app-shell.is-lesson-mode .topbar,
 .app-shell.is-lesson-mode .hero-strip,
 .app-shell.is-lesson-mode .bottom-nav {
@@ -590,7 +627,7 @@ body.dark .icon-button {
 
 .hero-strip {
   display: grid;
-  gap: 8px;
+  gap: 7px;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   margin: 8px 0 12px;
 }
@@ -618,22 +655,66 @@ body.dark .stat-card {
 }
 
 .summary-card {
-  min-height: 82px;
-  padding: 10px;
+  position: relative;
+  min-height: 70px;
+  padding: 9px;
 }
 
 .summary-card strong {
   display: block;
-  margin-top: 8px;
-  font-size: clamp(1.08rem, 5vw, 1.72rem);
+  margin-top: 5px;
+  font-size: clamp(1rem, 4.5vw, 1.38rem);
   line-height: 1;
 }
 
 .metric-label {
   color: var(--muted);
-  font-size: 0.68rem;
+  font-size: 0.62rem;
   font-weight: 900;
   text-transform: uppercase;
+}
+
+.metric-icon {
+  display: block;
+  width: 18px;
+  height: 18px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  background: rgba(76, 175, 34, 0.14);
+  position: relative;
+}
+
+.xp-icon::before,
+.streak-icon::before,
+.steps-icon::before,
+.goal-icon::before {
+  position: absolute;
+  inset: 4px;
+  border-radius: 3px;
+  content: "";
+}
+
+.xp-icon::before {
+  background: var(--warning);
+}
+
+.streak-icon::before {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-bottom: 10px solid var(--primary);
+  inset: 3px 4px 5px;
+  background: transparent;
+}
+
+.steps-icon::before {
+  border: 2px solid var(--water);
+  background: transparent;
+}
+
+.goal-icon::before {
+  border: 2px solid var(--primary-dark);
+  border-radius: 50%;
+  background: transparent;
 }
 
 .mini-progress,
@@ -787,10 +868,11 @@ body.dark .journey-hero {
 .path-plane,
 .lesson-plane {
   position: absolute;
-  width: 44px;
-  height: 18px;
-  border-radius: 999px 55% 55% 999px;
-  background: #ffffff;
+  width: 52px;
+  height: 15px;
+  border-radius: 70% 100% 100% 70%;
+  background:
+    linear-gradient(90deg, #f8ffff 0 70%, #d7f3f6 70% 100%);
   box-shadow: 0 8px 18px rgba(24, 50, 41, 0.16);
 }
 
@@ -807,24 +889,24 @@ body.dark .journey-hero {
 .map-plane::before,
 .path-plane::before,
 .lesson-plane::before {
-  left: 17px;
-  top: -11px;
-  width: 19px;
-  height: 38px;
-  border-radius: 70% 70% 4px 4px;
-  background: inherit;
-  transform: rotate(62deg);
+  left: 18px;
+  top: -14px;
+  width: 25px;
+  height: 42px;
+  border-radius: 80% 80% 5px 5px;
+  background: #ffffff;
+  transform: rotate(68deg);
 }
 
 .map-plane::after,
 .path-plane::after,
 .lesson-plane::after {
-  left: 4px;
-  top: -5px;
-  width: 12px;
-  height: 12px;
-  border-radius: 2px;
-  background: #43b3d9;
+  left: 2px;
+  top: -8px;
+  width: 16px;
+  height: 18px;
+  border-radius: 3px 9px 3px 3px;
+  background: #d7f3f6;
   transform: rotate(42deg);
 }
 
@@ -921,7 +1003,7 @@ body.dark .course-card {
   border-radius: 50%;
   background: var(--subject-color);
   color: #ffffff;
-  font-size: 0.98rem;
+  font-size: 0.82rem;
   font-weight: 1000;
   box-shadow: inset 0 -5px 0 rgba(0, 0, 0, 0.16);
 }
@@ -1214,6 +1296,10 @@ body.dark .path-node {
   border-color: rgba(53, 151, 52, 0.7);
 }
 
+.path-node.is-deferred {
+  border-color: rgba(242, 165, 26, 0.72);
+}
+
 .path-node.is-locked {
   cursor: not-allowed;
   opacity: 0.64;
@@ -1408,13 +1494,352 @@ body.dark .lesson-mission-bar {
 .lesson-progress {
   position: relative;
   z-index: 2;
-  margin: 20px 0;
+  margin: 16px 0;
+}
+
+.lesson-visual-panel {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.flight-visual {
+  position: relative;
+  overflow: hidden;
+  min-height: 220px;
+  border: 1px solid rgba(67, 179, 217, 0.3);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.76) 0 18px, transparent 19px),
+    linear-gradient(180deg, rgba(189, 235, 240, 0.82), rgba(246, 251, 243, 0.86));
+  box-shadow: inset 0 -10px 0 rgba(76, 175, 34, 0.08);
+}
+
+body.dark .flight-visual {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 255, 255, 0.14) 0 18px, transparent 19px),
+    linear-gradient(180deg, rgba(73, 174, 186, 0.22), rgba(29, 51, 41, 0.84));
+}
+
+.visual-copy {
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.84);
+}
+
+body.dark .visual-copy {
+  border-color: var(--line);
+  background: rgba(22, 40, 32, 0.86);
+}
+
+.visual-copy h3 {
+  margin: 0;
+  font-size: 1.28rem;
+  line-height: 1.05;
+}
+
+.visual-copy p {
+  margin: 8px 0 0;
+  color: var(--muted);
+  line-height: 1.42;
+}
+
+.key-points {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.key-points span {
+  min-height: 48px;
+  display: grid;
+  place-items: center;
+  border: 1px solid rgba(76, 175, 34, 0.24);
+  border-radius: 8px;
+  background: rgba(76, 175, 34, 0.1);
+  color: var(--primary-dark);
+  padding: 8px;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 950;
+}
+
+.airflow-line {
+  position: absolute;
+  left: 18px;
+  width: 168px;
+  height: 4px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(90deg, var(--water) 0 18px, transparent 18px 26px);
+}
+
+.airflow-line::after {
+  position: absolute;
+  right: -2px;
+  top: -5px;
+  border-top: 7px solid transparent;
+  border-bottom: 7px solid transparent;
+  border-left: 12px solid var(--water);
+  content: "";
+}
+
+.airflow-line.one {
+  top: 76px;
+}
+
+.airflow-line.two {
+  top: 124px;
+}
+
+.airflow-label {
+  position: absolute;
+  left: 22px;
+  top: 36px;
+  color: var(--water);
+  font-size: 0.74rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.wing-section {
+  position: absolute;
+  right: 32px;
+  top: 94px;
+  width: 160px;
+  height: 38px;
+  border-radius: 50% 14px 18px 50%;
+  background: linear-gradient(180deg, #ffffff, #d7f3f6);
+  box-shadow: 0 10px 18px rgba(24, 50, 41, 0.16);
+  transform: rotate(-14deg);
+}
+
+.chord-line {
+  position: absolute;
+  right: 38px;
+  top: 118px;
+  width: 150px;
+  height: 2px;
+  background: rgba(24, 50, 41, 0.7);
+  transform: rotate(-14deg);
+}
+
+.angle-arc {
+  position: absolute;
+  right: 150px;
+  top: 99px;
+  width: 44px;
+  height: 44px;
+  border: 3px solid var(--warning);
+  border-right-color: transparent;
+  border-bottom-color: transparent;
+  border-radius: 50%;
+  transform: rotate(18deg);
+}
+
+.angle-label {
+  position: absolute;
+  right: 158px;
+  top: 68px;
+  color: var(--warning);
+  font-weight: 1000;
+}
+
+.demo-aircraft,
+.banked-aircraft {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 86px;
+  height: 22px;
+  border-radius: 70% 100% 100% 70%;
+  background: linear-gradient(90deg, #f8ffff 0 70%, #d7f3f6 70% 100%);
+  box-shadow: 0 10px 18px rgba(24, 50, 41, 0.18);
+  transform: translate(-50%, -50%);
+}
+
+.demo-aircraft::before,
+.demo-aircraft::after,
+.banked-aircraft::before,
+.banked-aircraft::after {
+  position: absolute;
+  content: "";
+}
+
+.demo-aircraft::before,
+.banked-aircraft::before {
+  left: 32px;
+  top: -23px;
+  width: 34px;
+  height: 72px;
+  border-radius: 80% 80% 6px 6px;
+  background: #ffffff;
+  transform: rotate(68deg);
+}
+
+.demo-aircraft::after,
+.banked-aircraft::after {
+  left: 4px;
+  top: -11px;
+  width: 22px;
+  height: 24px;
+  border-radius: 3px 12px 3px 3px;
+  background: #d7f3f6;
+  transform: rotate(42deg);
+}
+
+.lift-arrow,
+.drag-arrow,
+.lift-vector,
+.weight-vector {
+  position: absolute;
+  border-radius: 999px;
+  padding: 7px 10px;
+  color: #ffffff;
+  font-size: 0.72rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.lift-arrow {
+  left: 50%;
+  top: 28px;
+  background: var(--primary);
+  transform: translateX(-50%);
+}
+
+.lift-arrow::after,
+.drag-arrow::after,
+.lift-vector::after,
+.weight-vector::after {
+  position: absolute;
+  content: "";
+}
+
+.lift-arrow::after {
+  left: 50%;
+  bottom: -36px;
+  width: 4px;
+  height: 34px;
+  background: var(--primary);
+}
+
+.drag-arrow {
+  left: 24px;
+  top: 118px;
+  background: var(--warning);
+}
+
+.drag-arrow::after {
+  right: -58px;
+  top: 50%;
+  width: 58px;
+  height: 4px;
+  background: var(--warning);
+}
+
+.speed-tag,
+.bank-tag,
+.load-tag {
+  position: absolute;
+  border: 1px solid rgba(24, 50, 41, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--text);
+  padding: 7px 10px;
+  font-size: 0.72rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.speed-tag {
+  right: 22px;
+  top: 22px;
+}
+
+.vortex {
+  position: absolute;
+  bottom: 26px;
+  width: 56px;
+  height: 28px;
+  border: 4px solid var(--water);
+  border-top-color: transparent;
+  border-radius: 50%;
+  opacity: 0.74;
+}
+
+.vortex.left {
+  left: 80px;
+}
+
+.vortex.right {
+  right: 80px;
+}
+
+.turn-circle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 154px;
+  height: 112px;
+  border: 4px dashed rgba(67, 179, 217, 0.75);
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(-18deg);
+}
+
+.banked-aircraft {
+  transform: translate(-50%, -50%) rotate(32deg);
+}
+
+.lift-vector {
+  left: 178px;
+  top: 34px;
+  background: var(--primary);
+}
+
+.lift-vector::after {
+  left: 13px;
+  bottom: -48px;
+  width: 4px;
+  height: 48px;
+  background: var(--primary);
+  transform: rotate(28deg);
+  transform-origin: top;
+}
+
+.weight-vector {
+  left: 114px;
+  bottom: 24px;
+  background: var(--danger);
+}
+
+.weight-vector::after {
+  left: 50%;
+  top: -46px;
+  width: 4px;
+  height: 46px;
+  background: var(--danger);
+}
+
+.bank-tag {
+  left: 18px;
+  top: 20px;
+}
+
+.load-tag {
+  right: 18px;
+  bottom: 20px;
 }
 
 .lesson-trivia {
   position: relative;
   z-index: 2;
-  margin-bottom: 18px;
+  margin-bottom: 14px;
 }
 
 .lesson-section {
@@ -1492,10 +1917,8 @@ body.dark .lesson-mission-bar {
 }
 
 .continue-lesson {
-  position: sticky;
-  bottom: 84px;
-  z-index: 10;
   width: 100%;
+  margin-top: 12px;
 }
 
 .feedback-result {

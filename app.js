@@ -5,6 +5,19 @@ const THEME_KEY = "atplAcademyTheme";
 const DAILY_GOAL = 3;
 const XP_PER_CORRECT_LESSON = 10;
 const LIVE_COURSE_KEYS = ["principlesOfFlight"];
+const SUBJECT_CODES = {
+  airLaw: "ALW",
+  operationalProcedures: "OPS",
+  humanPerformance: "HPL",
+  meteorology: "MET",
+  communications: "COM",
+  principlesOfFlight: "POF",
+  instrumentation: "INS",
+  massAndBalance: "M&B",
+  performance: "PER",
+  flightPlanning: "FPM",
+  generalNavigation: "GNAV"
+};
 const CHALLENGE_TYPES = [
   {
     label: "Concept",
@@ -66,6 +79,26 @@ const LESSON_TRIVIA = {
   "pof-induced-drag": "Induced drag is the price of lift. It grows during slow flight because the wing needs a higher lift coefficient.",
   "pof-load-factor": "At 60 degrees of bank in level flight, load factor is about 2 g, so stall speed rises by roughly 41 percent."
 };
+const LESSON_VISUALS = {
+  "pof-angle-of-attack": {
+    type: "aoa",
+    title: "The wing meets the airflow at an angle",
+    caption: "Angle of attack is the angle between the chord line and the relative airflow. Increase it too far and airflow separates.",
+    points: ["Chord line", "Relative airflow", "Critical angle"]
+  },
+  "pof-induced-drag": {
+    type: "drag",
+    title: "Lift creates a backward drag component",
+    caption: "At low speed the wing works harder for lift. That stronger lift demand increases induced drag.",
+    points: ["Low speed", "High lift", "More induced drag"]
+  },
+  "pof-load-factor": {
+    type: "load",
+    title: "A level turn asks the wing for more lift",
+    caption: "Banking splits lift between holding altitude and turning. More bank means more load factor and a higher stall speed.",
+    points: ["Bank angle", "Load factor", "Stall speed rises"]
+  }
+};
 
 const subjects = window.ATPL_LESSONS;
 let audioContext = null;
@@ -112,10 +145,11 @@ const elements = {
   lessonCounter: document.getElementById("lessonCounter"),
   lessonTitle: document.getElementById("lessonTitle"),
   lessonProgressBar: document.getElementById("lessonProgressBar"),
+  lessonVisual: document.getElementById("lessonVisual"),
+  lessonVisualTitle: document.getElementById("lessonVisualTitle"),
+  lessonVisualCaption: document.getElementById("lessonVisualCaption"),
+  lessonKeyPoints: document.getElementById("lessonKeyPoints"),
   lessonTrivia: document.getElementById("lessonTrivia"),
-  lessonExplanation: document.getElementById("lessonExplanation"),
-  lessonRelevance: document.getElementById("lessonRelevance"),
-  lessonExample: document.getElementById("lessonExample"),
   quizQuestion: document.getElementById("quizQuestion"),
   answerOptions: document.getElementById("answerOptions"),
   answerFeedback: document.getElementById("answerFeedback"),
@@ -202,6 +236,7 @@ function loadProgress() {
     dailyCountDate: todayString(),
     dailyLessons: 0,
     completedLessons: {},
+    deferredLessons: {},
     currentCourseKey: "",
     lastSubjectKey: "",
     lastLessonIndex: 0
@@ -253,8 +288,20 @@ function isCourseAvailable(subjectKey) {
   return LIVE_COURSE_KEYS.includes(subjectKey);
 }
 
+function subjectCode(subjectKey) {
+  return SUBJECT_CODES[subjectKey] || subjectKey.slice(0, 3).toUpperCase();
+}
+
+function subjectDisplayName(subjectKey) {
+  return `${subjectCode(subjectKey)} - ${subjects[subjectKey].title}`;
+}
+
 function completedSet(subjectKey) {
   return new Set(state.progress.completedLessons[subjectKey] || []);
+}
+
+function deferredSet(subjectKey) {
+  return new Set(state.progress.deferredLessons[subjectKey] || []);
 }
 
 function completedCount(subjectKey) {
@@ -289,7 +336,24 @@ function learningPath(courseKey = state.courseKey) {
 
 function firstUncompletedPathIndex() {
   const path = learningPath();
-  const index = path.findIndex((item) => !completedSet(item.subjectKey).has(item.lesson.id));
+  const index = path.findIndex((item) => {
+    const completed = completedSet(item.subjectKey);
+    const deferred = deferredSet(item.subjectKey);
+    return !completed.has(item.lesson.id) && !deferred.has(item.lesson.id);
+  });
+  if (index !== -1) {
+    return index;
+  }
+
+  const retryIndex = path.findIndex((item) => {
+    const completed = completedSet(item.subjectKey);
+    const deferred = deferredSet(item.subjectKey);
+    return !completed.has(item.lesson.id) && deferred.has(item.lesson.id);
+  });
+  if (retryIndex !== -1) {
+    return retryIndex;
+  }
+
   return index === -1 ? path.length : index;
 }
 
@@ -341,10 +405,11 @@ function renderSubjects() {
 
   path.forEach((item) => {
     const completed = completedSet(item.subjectKey).has(item.lesson.id);
+    const deferred = deferredSet(item.subjectKey).has(item.lesson.id);
     const active = item.pathIndex === activeIndex;
-    const locked = item.pathIndex > activeIndex;
+    const locked = !completed && !active && (deferred || item.pathIndex > activeIndex);
     const node = document.createElement("button");
-    node.className = `path-node ${item.pathIndex % 2 ? "is-right" : "is-left"} ${completed ? "is-complete" : ""} ${active ? "is-active" : ""} ${locked ? "is-locked" : ""}`;
+    node.className = `path-node ${item.pathIndex % 2 ? "is-right" : "is-left"} ${completed ? "is-complete" : ""} ${active ? "is-active" : ""} ${deferred ? "is-deferred" : ""} ${locked ? "is-locked" : ""}`;
     node.type = "button";
     node.disabled = locked;
     node.style.setProperty("--subject-color", item.subject.accent);
@@ -353,9 +418,9 @@ function renderSubjects() {
         <span class="node-icon">${locked ? "L" : item.challenge.short}</span>
       </span>
       <span class="node-copy">
-        <span class="node-kicker">${item.challenge.label} - ${item.subject.title}</span>
+        <span class="node-kicker">${item.challenge.label} - ${subjectDisplayName(item.subjectKey)}</span>
         <strong>${item.lesson.title}</strong>
-        <span>${completed ? "Completed - review unlocked" : active ? item.challenge.description : "Complete earlier steps first"}</span>
+        <span>${completed ? "Completed - review unlocked" : deferred ? "Queued for retry" : active ? item.challenge.description : "Complete earlier steps first"}</span>
       </span>
     `;
     node.addEventListener("click", () => {
@@ -383,9 +448,9 @@ function renderDashboardState() {
   const completed = completedCount(state.courseKey);
   const total = subject.lessons.length;
   elements.dashboardEyebrow.textContent = "Active course";
-  elements.dashboardTitle.textContent = subject.title;
+  elements.dashboardTitle.textContent = subjectDisplayName(state.courseKey);
   elements.dashboardCopy.textContent = "Follow the trail from first concept to mastery. Each stop adds one exam-ready idea.";
-  elements.selectedCourseTitle.textContent = subject.title;
+  elements.selectedCourseTitle.textContent = subjectDisplayName(state.courseKey);
   elements.selectedCourseMeta.textContent = `${completed} of ${total} tasks complete`;
 }
 
@@ -412,9 +477,9 @@ function renderCourses() {
     card.style.setProperty("--subject-color", subject.accent);
     card.innerHTML = `
       <span class="course-badge">${available ? "Live" : "Soon"}</span>
-      <span class="course-icon">${subject.title.split(" ").map((word) => word[0]).join("").slice(0, 3)}</span>
+      <span class="course-icon">${subjectCode(subjectKey)}</span>
       <span class="course-copy">
-        <strong>${subject.title}</strong>
+        <strong>${subjectDisplayName(subjectKey)}</strong>
         <span>${available ? `${completed} of ${total} tasks complete` : "Course trail coming later"}</span>
       </span>
       <span class="course-progress" aria-hidden="true"><span style="width: ${available ? percent : 0}%"></span></span>
@@ -460,7 +525,7 @@ function renderStats() {
     return `
       <div class="subject-progress-row">
         <div class="subject-progress-top">
-          <span>${subject.title}</span>
+          <span>${subjectDisplayName(subjectKey)}</span>
           <span>${percent}%</span>
         </div>
         <div class="progress-bar" aria-hidden="true"><span style="width: ${percent}%; background: ${subject.accent};"></span></div>
@@ -515,16 +580,14 @@ function renderLesson() {
   elements.lessonSubject.textContent = state.reviewMode ? `${subject.title} review` : subject.title;
   const pathItem = currentPathItem();
   elements.lessonSubject.textContent = pathItem
-    ? `${pathItem.challenge.label} - ${subject.title}`
-    : subject.title;
+    ? `${pathItem.challenge.label} - ${subjectDisplayName(state.subjectKey)}`
+    : subjectDisplayName(state.subjectKey);
   elements.lessonCounter.textContent = pathItem
     ? `Step ${pathItem.pathIndex + 1} of ${learningPath(state.subjectKey).length}`
     : `Lesson ${state.lessonIndex + 1} of ${subject.lessons.length}`;
   elements.lessonTitle.textContent = lesson.title;
+  renderLessonVisual(lesson);
   elements.lessonTrivia.textContent = LESSON_TRIVIA[lesson.id] || "Keep the rule tied to the aircraft state, not just the memorized phrase.";
-  elements.lessonExplanation.textContent = lesson.explanation;
-  elements.lessonRelevance.textContent = lesson.relevance;
-  elements.lessonExample.textContent = lesson.example;
   elements.quizQuestion.textContent = lesson.question;
   elements.lessonProgressBar.style.width = `${percent}%`;
   elements.answerFeedback.hidden = true;
@@ -542,6 +605,64 @@ function renderLesson() {
     button.addEventListener("click", () => handleAnswer(index));
     elements.answerOptions.appendChild(button);
   });
+}
+
+function renderLessonVisual(lesson) {
+  const fallback = {
+    type: "default",
+    title: lesson.title,
+    caption: lesson.explanation,
+    points: [lesson.relevance, lesson.example].filter(Boolean).slice(0, 2)
+  };
+  const visual = LESSON_VISUALS[lesson.id] || fallback;
+
+  elements.lessonVisual.className = `flight-visual visual-${visual.type}`;
+  elements.lessonVisual.innerHTML = buildVisualMarkup(visual.type);
+  elements.lessonVisualTitle.textContent = visual.title;
+  elements.lessonVisualCaption.textContent = visual.caption;
+  elements.lessonKeyPoints.innerHTML = visual.points.map((point) => `<span>${point}</span>`).join("");
+}
+
+function buildVisualMarkup(type) {
+  if (type === "aoa") {
+    return `
+      <span class="airflow-line one"></span>
+      <span class="airflow-line two"></span>
+      <span class="airflow-label">Relative airflow</span>
+      <span class="wing-section"></span>
+      <span class="chord-line"></span>
+      <span class="angle-arc"></span>
+      <span class="angle-label">alpha</span>
+    `;
+  }
+
+  if (type === "drag") {
+    return `
+      <span class="demo-aircraft"></span>
+      <span class="lift-arrow">Lift</span>
+      <span class="drag-arrow">Induced drag</span>
+      <span class="speed-tag">Low speed</span>
+      <span class="vortex left"></span>
+      <span class="vortex right"></span>
+    `;
+  }
+
+  if (type === "load") {
+    return `
+      <span class="turn-circle"></span>
+      <span class="banked-aircraft"></span>
+      <span class="lift-vector">Lift</span>
+      <span class="weight-vector">Weight</span>
+      <span class="bank-tag">60 deg bank</span>
+      <span class="load-tag">about 2 g</span>
+    `;
+  }
+
+  return `
+    <span class="demo-aircraft"></span>
+    <span class="airflow-line one"></span>
+    <span class="airflow-line two"></span>
+  `;
 }
 
 function handleAnswer(selectedIndex) {
@@ -565,8 +686,10 @@ function handleAnswer(selectedIndex) {
     }
   });
 
-  if (!state.reviewMode) {
+  if (!state.reviewMode && correct) {
     completeLesson(lesson, correct);
+  } else if (!state.reviewMode) {
+    deferLesson(lesson);
   }
 
   const feedback = getFeedbackData(correct, lesson);
@@ -645,7 +768,7 @@ function playFeedbackSound(correct) {
       return;
     }
 
-    playToneSequence([246.94, 196], 0.11, "sine", 0.08);
+    playToneSequence([220, 174.61, 146.83], 0.13, "sawtooth", 0.12);
   } catch {
     audioContext = null;
   }
@@ -674,6 +797,16 @@ function getContinueLabel() {
   if (!pathItem) {
     return "Continue";
   }
+
+  if (state.answered && !state.reviewMode) {
+    const path = learningPath();
+    const nextItem = path[firstUncompletedPathIndex()];
+    if (!nextItem) {
+      return "Finish path";
+    }
+    return nextItem.lesson.id === pathItem.lesson.id ? "Retry challenge" : "Next challenge";
+  }
+
   return pathItem.pathIndex < learningPath().length - 1 ? "Next challenge" : "Finish path";
 }
 
@@ -685,6 +818,7 @@ function completeLesson(lesson, correct) {
 
   completed.add(lesson.id);
   state.progress.completedLessons[state.subjectKey] = Array.from(completed);
+  removeDeferredLesson(lesson);
   if (correct) {
     state.progress.xp += XP_PER_CORRECT_LESSON;
   }
@@ -692,6 +826,23 @@ function completeLesson(lesson, correct) {
   updateDailyStreak();
   state.progress.lastLessonIndex = state.lessonIndex + 1;
   saveProgress();
+}
+
+function deferLesson(lesson) {
+  const deferred = deferredSet(state.subjectKey);
+  deferred.add(lesson.id);
+  state.progress.deferredLessons[state.subjectKey] = Array.from(deferred);
+  saveProgress();
+}
+
+function removeDeferredLesson(lesson) {
+  const deferred = deferredSet(state.subjectKey);
+  if (!deferred.has(lesson.id)) {
+    return;
+  }
+
+  deferred.delete(lesson.id);
+  state.progress.deferredLessons[state.subjectKey] = Array.from(deferred);
 }
 
 function updateDailyStreak() {
@@ -715,8 +866,8 @@ function moveToNextLesson() {
   }
 
   const path = learningPath();
-  const pathItem = currentPathItem();
-  const nextItem = pathItem ? path[pathItem.pathIndex + 1] : null;
+  const activeIndex = firstUncompletedPathIndex();
+  const nextItem = path[activeIndex];
 
   if (nextItem) {
     startLesson(nextItem.subjectKey, nextItem.lessonIndex, false);
