@@ -106,9 +106,9 @@
         <section id="dashboardView" class="view active-view" aria-labelledby="dashboardTitle">
           <section class="journey-hero" aria-labelledby="dashboardTitle">
             <div class="journey-copy">
-              <p class="eyebrow">Today route</p>
-              <h2 id="dashboardTitle">Follow the ATPL trail</h2>
-              <p>Small checks, scenarios, and mastery stops keep the big syllabus moving one step at a time.</p>
+              <p id="dashboardEyebrow" class="eyebrow">Course hangar</p>
+              <h2 id="dashboardTitle">Choose your ATPL course</h2>
+              <p id="dashboardCopy">Start with one subject, finish its trail, then add more courses as the app grows.</p>
             </div>
             <button id="continueButton" class="primary-button" type="button">Continue route</button>
             <div class="map-scene" aria-hidden="true">
@@ -119,10 +119,22 @@
             </div>
           </section>
 
-          <div class="path-stage">
-            <div class="path-ribbon" aria-hidden="true"></div>
-            <div id="subjectGrid" class="learning-path"></div>
-          </div>
+          <section id="coursePicker" class="course-picker" aria-label="Available courses"></section>
+
+          <section id="courseTrail" class="course-trail" hidden>
+            <div class="course-trail-header">
+              <button id="backToCoursesButton" class="ghost-button" type="button">All courses</button>
+              <div>
+                <p class="eyebrow">Course trail</p>
+                <h3 id="selectedCourseTitle">Principles of Flight</h3>
+                <p id="selectedCourseMeta">0 of 3 tasks complete</p>
+              </div>
+            </div>
+            <div class="path-stage">
+              <div class="path-ribbon" aria-hidden="true"></div>
+              <div id="subjectGrid" class="learning-path"></div>
+            </div>
+          </section>
         </section>
 
         <section id="lessonView" class="view lesson-view" aria-live="polite">

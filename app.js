@@ -4,6 +4,7 @@ const AUTH_KEY = "atplAcademyAuthenticated";
 const THEME_KEY = "atplAcademyTheme";
 const DAILY_GOAL = 3;
 const XP_PER_CORRECT_LESSON = 10;
+const LIVE_COURSE_KEYS = ["principlesOfFlight"];
 const CHALLENGE_TYPES = [
   {
     label: "Concept",
@@ -66,6 +67,7 @@ let audioContext = null;
 
 const state = {
   view: "dashboard",
+  courseKey: null,
   subjectKey: null,
   lessonIndex: 0,
   reviewMode: false,
@@ -79,6 +81,14 @@ const elements = {
   loginForm: document.getElementById("loginForm"),
   passwordInput: document.getElementById("passwordInput"),
   loginError: document.getElementById("loginError"),
+  dashboardEyebrow: document.getElementById("dashboardEyebrow"),
+  dashboardTitle: document.getElementById("dashboardTitle"),
+  dashboardCopy: document.getElementById("dashboardCopy"),
+  coursePicker: document.getElementById("coursePicker"),
+  courseTrail: document.getElementById("courseTrail"),
+  selectedCourseTitle: document.getElementById("selectedCourseTitle"),
+  selectedCourseMeta: document.getElementById("selectedCourseMeta"),
+  backToCoursesButton: document.getElementById("backToCoursesButton"),
   subjectGrid: document.getElementById("subjectGrid"),
   xpValue: document.getElementById("xpValue"),
   streakValue: document.getElementById("streakValue"),
@@ -139,6 +149,7 @@ function bindEvents() {
     elements.mobileMenu.hidden = !elements.mobileMenu.hidden;
   });
   elements.backToDashboard.addEventListener("click", () => showView("dashboard"));
+  elements.backToCoursesButton.addEventListener("click", showCoursePicker);
   elements.continueButton.addEventListener("click", continueLatest);
   elements.continueLessonButton.addEventListener("click", moveToNextLesson);
   elements.popupCloseButton.addEventListener("click", hideFeedbackPopup);
@@ -185,6 +196,7 @@ function loadProgress() {
     dailyCountDate: todayString(),
     dailyLessons: 0,
     completedLessons: {},
+    currentCourseKey: "",
     lastSubjectKey: "",
     lastLessonIndex: 0
   };
@@ -231,6 +243,10 @@ function subjectKeys() {
   return Object.keys(subjects);
 }
 
+function isCourseAvailable(subjectKey) {
+  return LIVE_COURSE_KEYS.includes(subjectKey);
+}
+
 function completedSet(subjectKey) {
   return new Set(state.progress.completedLessons[subjectKey] || []);
 }
@@ -240,29 +256,28 @@ function completedCount(subjectKey) {
 }
 
 function totalLessonCount() {
-  return subjectKeys().reduce((sum, key) => sum + subjects[key].lessons.length, 0);
+  return LIVE_COURSE_KEYS.reduce((sum, key) => sum + subjects[key].lessons.length, 0);
 }
 
 function totalCompletedCount() {
-  return subjectKeys().reduce((sum, key) => sum + completedCount(key), 0);
+  return LIVE_COURSE_KEYS.reduce((sum, key) => sum + completedCount(key), 0);
 }
 
-function learningPath() {
-  return subjectKeys().flatMap((subjectKey) => {
-    const subject = subjects[subjectKey];
-    return subject.lessons.map((lesson, lessonIndex) => {
-      const pathIndex = subjectKeys()
-        .slice(0, subjectKeys().indexOf(subjectKey))
-        .reduce((sum, key) => sum + subjects[key].lessons.length, 0) + lessonIndex;
-      return {
-        subjectKey,
-        subject,
-        lesson,
-        lessonIndex,
-        pathIndex,
-        challenge: CHALLENGE_TYPES[pathIndex % CHALLENGE_TYPES.length]
-      };
-    });
+function learningPath(courseKey = state.courseKey) {
+  if (!courseKey || !subjects[courseKey]) {
+    return [];
+  }
+
+  const subject = subjects[courseKey];
+  return subject.lessons.map((lesson, lessonIndex) => {
+    return {
+      subjectKey: courseKey,
+      subject,
+      lesson,
+      lessonIndex,
+      pathIndex: lessonIndex,
+      challenge: CHALLENGE_TYPES[lessonIndex % CHALLENGE_TYPES.length]
+    };
   });
 }
 
@@ -273,7 +288,7 @@ function firstUncompletedPathIndex() {
 }
 
 function currentPathItem() {
-  return learningPath().find((item) => (
+  return learningPath(state.subjectKey).find((item) => (
     item.subjectKey === state.subjectKey && item.lessonIndex === state.lessonIndex
   ));
 }
@@ -306,7 +321,15 @@ function renderSummary() {
 }
 
 function renderSubjects() {
+  renderDashboardState();
   elements.subjectGrid.innerHTML = "";
+  elements.coursePicker.innerHTML = "";
+
+  if (!state.courseKey) {
+    renderCourses();
+    return;
+  }
+
   const path = learningPath();
   const activeIndex = firstUncompletedPathIndex();
 
@@ -338,6 +361,72 @@ function renderSubjects() {
   });
 }
 
+function renderDashboardState() {
+  const subject = state.courseKey ? subjects[state.courseKey] : null;
+  elements.coursePicker.hidden = Boolean(subject);
+  elements.courseTrail.hidden = !subject;
+  elements.continueButton.hidden = !subject;
+
+  if (!subject) {
+    elements.dashboardEyebrow.textContent = "Course hangar";
+    elements.dashboardTitle.textContent = "Choose your ATPL course";
+    elements.dashboardCopy.textContent = "Start with one subject, finish its trail, then add more courses as the app grows.";
+    return;
+  }
+
+  const completed = completedCount(state.courseKey);
+  const total = subject.lessons.length;
+  elements.dashboardEyebrow.textContent = "Active course";
+  elements.dashboardTitle.textContent = subject.title;
+  elements.dashboardCopy.textContent = "Follow the trail from first concept to mastery. Each stop adds one exam-ready idea.";
+  elements.selectedCourseTitle.textContent = subject.title;
+  elements.selectedCourseMeta.textContent = `${completed} of ${total} tasks complete`;
+}
+
+function renderCourses() {
+  subjectKeys().forEach((subjectKey) => {
+    const subject = subjects[subjectKey];
+    const available = isCourseAvailable(subjectKey);
+    const completed = completedCount(subjectKey);
+    const total = subject.lessons.length;
+    const percent = subjectPercent(subjectKey);
+    const card = document.createElement("button");
+    card.className = `course-card ${available ? "is-live" : "is-locked"}`;
+    card.type = "button";
+    card.disabled = !available;
+    card.style.setProperty("--subject-color", subject.accent);
+    card.innerHTML = `
+      <span class="course-badge">${available ? "Live" : "Soon"}</span>
+      <span class="course-icon">${subject.title.split(" ").map((word) => word[0]).join("").slice(0, 3)}</span>
+      <span class="course-copy">
+        <strong>${subject.title}</strong>
+        <span>${available ? `${completed} of ${total} tasks complete` : "Course trail coming later"}</span>
+      </span>
+      <span class="course-progress" aria-hidden="true"><span style="width: ${available ? percent : 0}%"></span></span>
+    `;
+    card.addEventListener("click", () => selectCourse(subjectKey));
+    elements.coursePicker.appendChild(card);
+  });
+}
+
+function selectCourse(subjectKey) {
+  if (!isCourseAvailable(subjectKey)) {
+    return;
+  }
+
+  state.courseKey = subjectKey;
+  state.progress.currentCourseKey = subjectKey;
+  saveProgress();
+  renderAll();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+function showCoursePicker() {
+  state.courseKey = null;
+  renderAll();
+  window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
 function renderStats() {
   const totalLessons = totalLessonCount();
   const completedLessons = totalCompletedCount();
@@ -350,7 +439,7 @@ function renderStats() {
     <article class="stat-card"><span>Overall completion</span><strong>${completion}%</strong></article>
   `;
 
-  elements.subjectProgressList.innerHTML = subjectKeys().map((subjectKey) => {
+  elements.subjectProgressList.innerHTML = LIVE_COURSE_KEYS.map((subjectKey) => {
     const subject = subjects[subjectKey];
     const percent = subjectPercent(subjectKey);
     return `
@@ -389,6 +478,7 @@ function continueLatest() {
 }
 
 function startLesson(subjectKey, lessonIndex, reviewMode) {
+  state.courseKey = subjectKey;
   state.subjectKey = subjectKey;
   state.lessonIndex = lessonIndex;
   state.reviewMode = reviewMode;
@@ -412,7 +502,7 @@ function renderLesson() {
     ? `${pathItem.challenge.label} - ${subject.title}`
     : subject.title;
   elements.lessonCounter.textContent = pathItem
-    ? `Step ${pathItem.pathIndex + 1} of ${totalLessonCount()}`
+    ? `Step ${pathItem.pathIndex + 1} of ${learningPath(state.subjectKey).length}`
     : `Lesson ${state.lessonIndex + 1} of ${subject.lessons.length}`;
   elements.lessonTitle.textContent = lesson.title;
   elements.lessonExplanation.textContent = lesson.explanation;
