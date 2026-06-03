@@ -4,6 +4,36 @@ const AUTH_KEY = "atplAcademyAuthenticated";
 const THEME_KEY = "atplAcademyTheme";
 const DAILY_GOAL = 3;
 const XP_PER_CORRECT_LESSON = 10;
+const MOTIVATION_MESSAGES = {
+  correct: [
+    {
+      title: "Sharp work",
+      body: "That is the kind of quick recall ATPL questions reward. Keep the rhythm going."
+    },
+    {
+      title: "Nice climb",
+      body: "One more concept is moving from vague to automatic. That is real exam prep."
+    },
+    {
+      title: "Clean answer",
+      body: "You are building the mental shortcuts that make the big syllabus feel smaller."
+    }
+  ],
+  incorrect: [
+    {
+      title: "Good training rep",
+      body: "A miss here is useful. Read the correction once, then carry it into the next one."
+    },
+    {
+      title: "Still progress",
+      body: "This is where recall gets stronger. The right answer is easier to spot next time."
+    },
+    {
+      title: "Reset and continue",
+      body: "ATPL theory is won by steady repeats, not perfect first tries. You are still moving."
+    }
+  ]
+};
 
 const subjects = window.ATPL_LESSONS;
 
@@ -322,6 +352,7 @@ function renderLesson() {
   elements.answerFeedback.hidden = true;
   elements.answerFeedback.innerHTML = "";
   elements.continueLessonButton.disabled = true;
+  elements.continueLessonButton.textContent = getContinueLabel();
   elements.answerOptions.innerHTML = "";
 
   lesson.options.forEach((option, index) => {
@@ -360,12 +391,40 @@ function handleAnswer(selectedIndex) {
   }
 
   elements.answerFeedback.hidden = false;
-  elements.answerFeedback.innerHTML = `
-    <strong>${correct ? "Correct. +" + (state.reviewMode ? 0 : XP_PER_CORRECT_LESSON) + " XP" : "Not quite."}</strong>
-    ${lesson.quizExplanation}
-  `;
+  elements.answerFeedback.innerHTML = buildFeedback(correct, lesson);
   elements.continueLessonButton.disabled = false;
+  elements.continueLessonButton.textContent = getContinueLabel();
   renderAll();
+}
+
+function buildFeedback(correct, lesson) {
+  const messages = correct ? MOTIVATION_MESSAGES.correct : MOTIVATION_MESSAGES.incorrect;
+  const message = messages[(state.lessonIndex + (correct ? 0 : 1)) % messages.length];
+  const dailyProgress = Math.min(state.progress.dailyLessons, DAILY_GOAL);
+  const xpLabel = state.reviewMode ? "Review rep" : `+${correct ? XP_PER_CORRECT_LESSON : 0} XP`;
+
+  return `
+    <div class="feedback-result ${correct ? "is-correct" : "is-incorrect"}">
+      <span>${correct ? "Correct" : "Try again later"}</span>
+      <strong>${xpLabel}</strong>
+    </div>
+    <p>${lesson.quizExplanation}</p>
+    <div class="motivation-card ${correct ? "is-correct" : "is-incorrect"}">
+      <span class="motivation-kicker">${correct ? "Momentum" : "Learning moment"}</span>
+      <strong>${message.title}</strong>
+      <p>${message.body}</p>
+      <div class="motivation-progress">
+        <span>Daily goal</span>
+        <strong>${dailyProgress}/${DAILY_GOAL}</strong>
+      </div>
+    </div>
+  `;
+}
+
+function getContinueLabel() {
+  const subject = subjects[state.subjectKey];
+  const nextIndex = state.lessonIndex + 1;
+  return nextIndex < subject.lessons.length ? "Next question" : "Finish subject";
 }
 
 function completeLesson(lesson, correct) {

@@ -54,6 +54,12 @@
         <button class="nav-button" type="button" data-view="settings">Settings</button>
       </aside>
 
+      <nav class="bottom-nav" aria-label="Primary navigation">
+        <button class="nav-button active" type="button" data-view="dashboard">Home</button>
+        <button class="nav-button" type="button" data-view="stats">Stats</button>
+        <button class="nav-button" type="button" data-view="settings">Settings</button>
+      </nav>
+
       <section class="hero-strip" aria-label="Progress summary">
         <div class="summary-card total-xp">
           <span class="metric-label">Total XP</span>
@@ -83,18 +89,6 @@
             </div>
             <button id="continueButton" class="secondary-button" type="button">Continue latest</button>
           </div>
-
-          <section class="changelog" aria-labelledby="changelogTitle">
-            <div>
-              <p class="eyebrow">Changelog</p>
-              <h3 id="changelogTitle">v0.1 concept build</h3>
-            </div>
-            <ul>
-              <li>Password gate, dashboard, lesson flow, XP, streaks, and stats.</li>
-              <li>Three sample micro-lessons for each ATPL subject.</li>
-              <li>Progress persists locally and review mode avoids repeating new lessons.</li>
-            </ul>
-          </section>
 
           <div id="subjectGrid" class="subject-grid"></div>
         </section>
