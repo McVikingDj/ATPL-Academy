@@ -77,31 +77,107 @@ button {
 }
 
 .login-screen {
+  position: relative;
+  overflow: hidden;
   display: grid;
   min-height: 100vh;
   place-items: center;
   padding: 16px;
   background:
-    linear-gradient(rgba(20, 54, 37, 0.34), rgba(20, 54, 37, 0.72)),
-    url("assets/academy-hero.png") center/cover;
+    linear-gradient(180deg, var(--sky) 0 54%, var(--bg) 54% 100%);
+}
+
+.login-screen::before,
+.login-screen::after {
+  position: absolute;
+  content: "";
+  pointer-events: none;
+}
+
+.login-screen::before {
+  right: -70px;
+  bottom: -46px;
+  width: 220px;
+  height: 170px;
+  border-radius: 50%;
+  background: var(--water);
+  opacity: 0.66;
+}
+
+.login-screen::after {
+  left: -34px;
+  bottom: -28px;
+  width: 260px;
+  height: 160px;
+  border-radius: 50% 50% 0 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 20px, rgba(255, 255, 255, 0.22) 20px 27px),
+    linear-gradient(135deg, var(--grass), var(--grass-dark));
+  transform: rotate(5deg);
+}
+
+.login-sky {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .login-panel {
+  position: relative;
+  z-index: 2;
   width: min(100%, 430px);
-  padding: 24px;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  padding: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 8px;
-  background: rgba(18, 44, 32, 0.84);
-  color: #ffffff;
-  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.36);
-  backdrop-filter: blur(18px);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(246, 251, 243, 0.96)),
+    var(--surface);
+  color: var(--text);
+  box-shadow: 0 10px 0 rgba(24, 50, 41, 0.18), 0 24px 48px rgba(24, 50, 41, 0.22);
+  backdrop-filter: blur(14px);
+}
+
+.login-panel::before {
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(49, 130, 24, 0.24);
+  border-radius: 6px;
+  content: "";
+  pointer-events: none;
+}
+
+body.dark .login-panel {
+  border-color: var(--line);
+  background:
+    linear-gradient(180deg, rgba(22, 40, 32, 0.94), rgba(29, 51, 41, 0.96)),
+    var(--surface);
+}
+
+.login-card-top {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.boarding-code {
+  border-radius: 999px;
+  background: rgba(67, 179, 217, 0.14);
+  color: var(--primary-dark);
+  padding: 8px 10px;
+  font-size: 0.68rem;
+  font-weight: 1000;
+  text-transform: uppercase;
 }
 
 .brand-mark {
   position: relative;
   width: 64px;
   height: 64px;
-  margin-bottom: 20px;
+  margin-bottom: 0;
   border-radius: 8px;
   background: linear-gradient(135deg, #49c261, #43b3d9);
   box-shadow: 0 12px 28px rgba(44, 180, 116, 0.34);
@@ -156,7 +232,12 @@ button {
 
 .login-panel .eyebrow,
 .login-panel .login-copy {
-  color: rgba(255, 255, 255, 0.8);
+  position: relative;
+  z-index: 2;
+}
+
+.login-panel .login-copy {
+  color: var(--muted);
 }
 
 .login-panel h1,
@@ -168,6 +249,8 @@ button {
 }
 
 .login-panel h1 {
+  position: relative;
+  z-index: 2;
   font-size: clamp(2.4rem, 9vw, 4rem);
   line-height: 0.98;
 }
@@ -180,6 +263,8 @@ button {
 }
 
 .login-form label {
+  position: relative;
+  z-index: 2;
   display: block;
   margin-bottom: 9px;
   font-size: 0.9rem;
@@ -187,6 +272,8 @@ button {
 }
 
 .password-row {
+  position: relative;
+  z-index: 2;
   display: grid;
   gap: 10px;
   grid-template-columns: 1fr;
@@ -195,16 +282,16 @@ button {
 .password-row input {
   min-height: 54px;
   width: 100%;
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 2px solid var(--line);
   border-radius: 8px;
-  background: rgba(255, 255, 255, 0.13);
-  color: #ffffff;
+  background: var(--surface);
+  color: var(--text);
   padding: 0 16px;
   outline: none;
 }
 
 .password-row input::placeholder {
-  color: rgba(255, 255, 255, 0.58);
+  color: var(--muted);
 }
 
 .password-row input:focus {
@@ -213,13 +300,17 @@ button {
 }
 
 .form-error {
+  position: relative;
+  z-index: 2;
   min-height: 22px;
   margin: 10px 0 0;
-  color: #ffd6d6;
+  color: var(--danger);
   font-weight: 800;
 }
 
 .login-meta {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
@@ -227,13 +318,122 @@ button {
 }
 
 .login-meta span {
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(76, 175, 34, 0.22);
   border-radius: 999px;
   padding: 8px 11px;
-  background: rgba(255, 255, 255, 0.12);
-  color: rgba(255, 255, 255, 0.88);
+  background: rgba(76, 175, 34, 0.1);
+  color: var(--primary-dark);
   font-size: 0.82rem;
   font-weight: 800;
+}
+
+.login-cloud {
+  position: absolute;
+  display: block;
+  width: 74px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.login-cloud::before,
+.login-cloud::after {
+  position: absolute;
+  bottom: 7px;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: inherit;
+  content: "";
+}
+
+.login-cloud::before {
+  left: 12px;
+}
+
+.login-cloud::after {
+  right: 10px;
+}
+
+.login-cloud.cloud-one {
+  left: 24px;
+  top: 72px;
+  transform: scale(0.82);
+}
+
+.login-cloud.cloud-two {
+  right: 18px;
+  top: 118px;
+  transform: scale(0.64);
+}
+
+.login-cloud.cloud-three {
+  left: 42px;
+  bottom: 188px;
+  transform: scale(0.55);
+}
+
+.login-contrail {
+  position: absolute;
+  right: 86px;
+  top: 92px;
+  width: 150px;
+  height: 3px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.92) 0 18px, transparent 18px 28px);
+  transform: rotate(-17deg);
+}
+
+.login-plane {
+  position: absolute;
+  right: 42px;
+  top: 68px;
+  width: 50px;
+  height: 20px;
+  border-radius: 999px 55% 55% 999px;
+  background: #ffffff;
+  box-shadow: 0 10px 22px rgba(24, 50, 41, 0.16);
+  transform: rotate(-17deg);
+}
+
+.login-plane::before,
+.login-plane::after {
+  position: absolute;
+  content: "";
+}
+
+.login-plane::before {
+  left: 19px;
+  top: -13px;
+  width: 21px;
+  height: 42px;
+  border-radius: 70% 70% 4px 4px;
+  background: inherit;
+  transform: rotate(62deg);
+}
+
+.login-plane::after {
+  left: 5px;
+  top: -5px;
+  width: 13px;
+  height: 13px;
+  border-radius: 2px;
+  background: #43b3d9;
+  transform: rotate(42deg);
+}
+
+.login-runway {
+  position: absolute;
+  right: -38px;
+  bottom: 26px;
+  width: 178px;
+  height: 88px;
+  border-radius: 54% 0 0 0;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 18px, rgba(255, 255, 255, 0.68) 18px 28px),
+    linear-gradient(135deg, #697970, #374940);
+  box-shadow: 0 14px 30px rgba(24, 50, 41, 0.2);
+  transform: rotate(-13deg);
 }
 
 .app-shell {

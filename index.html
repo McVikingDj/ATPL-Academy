@@ -9,26 +9,37 @@
   </head>
   <body>
     <main id="loginScreen" class="login-screen">
+      <div class="login-sky" aria-hidden="true">
+        <span class="login-cloud cloud-one"></span>
+        <span class="login-cloud cloud-two"></span>
+        <span class="login-cloud cloud-three"></span>
+        <span class="login-contrail"></span>
+        <span class="login-plane"></span>
+        <span class="login-runway"></span>
+      </div>
       <section class="login-panel" aria-labelledby="loginTitle">
-        <div class="brand-mark" aria-hidden="true">
-          <span class="wing"></span>
-          <span class="radar"></span>
+        <div class="login-card-top">
+          <div class="brand-mark" aria-hidden="true">
+            <span class="wing"></span>
+            <span class="radar"></span>
+          </div>
+          <span class="boarding-code">FLIGHT DECK</span>
         </div>
-        <p class="eyebrow">ATPL concept build</p>
+        <p class="eyebrow">ATPL flight path</p>
         <h1 id="loginTitle">ATPL Academy</h1>
-        <p class="login-copy">Short lessons, targeted checks, and daily momentum for serious ATPL theory prep.</p>
+        <p class="login-copy">Enter the training route, pick a course, and clear each aviation challenge one step at a time.</p>
         <form id="loginForm" class="login-form">
           <label for="passwordInput">Access password</label>
           <div class="password-row">
             <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Enter password" required>
-            <button class="primary-button" type="submit">Enter</button>
+            <button class="primary-button" type="submit">Board</button>
           </div>
           <p id="loginError" class="form-error" role="alert"></p>
         </form>
         <div class="login-meta">
-          <span>Micro-lessons</span>
-          <span>XP streaks</span>
-          <span>Subject mastery</span>
+          <span>Course trails</span>
+          <span>Flight facts</span>
+          <span>XP clearances</span>
         </div>
       </section>
     </main>
