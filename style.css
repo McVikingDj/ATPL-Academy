@@ -939,6 +939,130 @@ body.dark .path-node {
   font-weight: 900;
 }
 
+.feedback-popup {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  align-items: end;
+  justify-items: center;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 180ms ease;
+}
+
+.feedback-popup.is-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.popup-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(17, 37, 31, 0.54);
+  backdrop-filter: blur(4px);
+}
+
+.popup-sheet {
+  position: relative;
+  width: min(100% - 24px, 456px);
+  margin: 0 12px 12px;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 18px 48px rgba(17, 37, 31, 0.36);
+  transform: translateY(26px) scale(0.98);
+  transition: transform 180ms ease;
+}
+
+.feedback-popup.is-visible .popup-sheet {
+  transform: translateY(0) scale(1);
+}
+
+body.dark .popup-sheet {
+  border-color: var(--line);
+}
+
+.popup-result-badge {
+  display: inline-grid;
+  min-width: 86px;
+  min-height: 54px;
+  place-items: center;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 1.25rem;
+  font-weight: 1000;
+  box-shadow: 0 8px 0 var(--primary-dark), 0 14px 24px rgba(49, 130, 24, 0.24);
+}
+
+.feedback-popup.is-incorrect .popup-result-badge {
+  background: var(--warning);
+  box-shadow: 0 8px 0 #a56f19, 0 14px 24px rgba(165, 111, 25, 0.2);
+}
+
+.popup-sheet h2 {
+  margin: 0;
+  font-size: clamp(1.7rem, 8vw, 2.5rem);
+  line-height: 1;
+}
+
+.popup-sheet > p {
+  margin: 12px 0 14px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.popup-motivation {
+  padding: 14px;
+  border: 1px solid rgba(76, 175, 34, 0.22);
+  border-radius: 8px;
+  background: var(--surface-soft);
+}
+
+.feedback-popup.is-incorrect .popup-motivation {
+  border-color: rgba(242, 165, 26, 0.34);
+}
+
+.popup-motivation strong {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--primary-dark);
+  font-size: 1.02rem;
+}
+
+.popup-motivation p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.popup-progress {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 14px 0;
+  padding: 12px 0;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  font-weight: 900;
+}
+
+.popup-progress span {
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 0.78rem;
+}
+
+.popup-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
 .bottom-nav {
   position: fixed;
   right: 12px;

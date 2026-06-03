@@ -54,6 +54,28 @@
         <button class="nav-button" type="button" data-view="settings">Settings</button>
       </aside>
 
+      <div id="feedbackPopup" class="feedback-popup" role="dialog" aria-modal="true" aria-labelledby="popupTitle" hidden>
+        <div class="popup-backdrop" data-close-popup></div>
+        <section class="popup-sheet">
+          <div id="popupResultBadge" class="popup-result-badge"></div>
+          <p id="popupKicker" class="eyebrow">Momentum</p>
+          <h2 id="popupTitle"></h2>
+          <p id="popupText"></p>
+          <div class="popup-motivation">
+            <strong id="popupMotivationTitle"></strong>
+            <p id="popupMotivationText"></p>
+          </div>
+          <div class="popup-progress">
+            <span>Daily goal</span>
+            <strong id="popupProgress"></strong>
+          </div>
+          <div class="popup-actions">
+            <button id="popupCloseButton" class="secondary-button" type="button">Review answer</button>
+            <button id="popupContinueButton" class="primary-button" type="button">Next challenge</button>
+          </div>
+        </section>
+      </div>
+
       <nav class="bottom-nav" aria-label="Primary navigation">
         <button class="nav-button active" type="button" data-view="dashboard">Home</button>
         <button class="nav-button" type="button" data-view="stats">Stats</button>

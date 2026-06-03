@@ -62,6 +62,7 @@ const MOTIVATION_MESSAGES = {
 };
 
 const subjects = window.ATPL_LESSONS;
+let audioContext = null;
 
 const state = {
   view: "dashboard",
@@ -103,6 +104,16 @@ const elements = {
   answerOptions: document.getElementById("answerOptions"),
   answerFeedback: document.getElementById("answerFeedback"),
   continueLessonButton: document.getElementById("continueLessonButton"),
+  feedbackPopup: document.getElementById("feedbackPopup"),
+  popupResultBadge: document.getElementById("popupResultBadge"),
+  popupKicker: document.getElementById("popupKicker"),
+  popupTitle: document.getElementById("popupTitle"),
+  popupText: document.getElementById("popupText"),
+  popupMotivationTitle: document.getElementById("popupMotivationTitle"),
+  popupMotivationText: document.getElementById("popupMotivationText"),
+  popupProgress: document.getElementById("popupProgress"),
+  popupCloseButton: document.getElementById("popupCloseButton"),
+  popupContinueButton: document.getElementById("popupContinueButton"),
   statsGrid: document.getElementById("statsGrid"),
   subjectProgressList: document.getElementById("subjectProgressList")
 };
@@ -130,8 +141,14 @@ function bindEvents() {
   elements.backToDashboard.addEventListener("click", () => showView("dashboard"));
   elements.continueButton.addEventListener("click", continueLatest);
   elements.continueLessonButton.addEventListener("click", moveToNextLesson);
+  elements.popupCloseButton.addEventListener("click", hideFeedbackPopup);
+  elements.popupContinueButton.addEventListener("click", moveToNextLesson);
   elements.resetProgressButton.addEventListener("click", resetProgress);
   elements.signOutButton.addEventListener("click", signOut);
+
+  document.querySelectorAll("[data-close-popup]").forEach((element) => {
+    element.addEventListener("click", hideFeedbackPopup);
+  });
 
   document.querySelectorAll("[data-view]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -349,6 +366,7 @@ function renderStats() {
 }
 
 function showView(viewName) {
+  hideFeedbackPopup();
   state.view = viewName;
   document.querySelectorAll(".view").forEach((view) => view.classList.remove("active-view"));
   document.getElementById(`${viewName}View`).classList.add("active-view");
@@ -404,6 +422,7 @@ function renderLesson() {
   elements.lessonProgressBar.style.width = `${percent}%`;
   elements.answerFeedback.hidden = true;
   elements.answerFeedback.innerHTML = "";
+  hideFeedbackPopup();
   elements.continueLessonButton.disabled = true;
   elements.continueLessonButton.textContent = getContinueLabel();
   elements.answerOptions.innerHTML = "";
@@ -443,35 +462,104 @@ function handleAnswer(selectedIndex) {
     completeLesson(lesson, correct);
   }
 
-  elements.answerFeedback.hidden = false;
-  elements.answerFeedback.innerHTML = buildFeedback(correct, lesson);
+  const feedback = getFeedbackData(correct, lesson);
+  playFeedbackSound(correct);
+  showFeedbackPopup(feedback);
+  elements.answerFeedback.hidden = true;
+  elements.answerFeedback.innerHTML = "";
   elements.continueLessonButton.disabled = false;
   elements.continueLessonButton.textContent = getContinueLabel();
   renderAll();
 }
 
-function buildFeedback(correct, lesson) {
+function getFeedbackData(correct, lesson) {
   const messages = correct ? MOTIVATION_MESSAGES.correct : MOTIVATION_MESSAGES.incorrect;
   const message = messages[(state.lessonIndex + (correct ? 0 : 1)) % messages.length];
   const dailyProgress = Math.min(state.progress.dailyLessons, DAILY_GOAL);
   const xpLabel = state.reviewMode ? "Review rep" : `+${correct ? XP_PER_CORRECT_LESSON : 0} XP`;
 
-  return `
-    <div class="feedback-result ${correct ? "is-correct" : "is-incorrect"}">
-      <span>${correct ? "Correct" : "Try again later"}</span>
-      <strong>${xpLabel}</strong>
-    </div>
-    <p>${lesson.quizExplanation}</p>
-    <div class="motivation-card ${correct ? "is-correct" : "is-incorrect"}">
-      <span class="motivation-kicker">${correct ? "Momentum" : "Learning moment"}</span>
-      <strong>${message.title}</strong>
-      <p>${message.body}</p>
-      <div class="motivation-progress">
-        <span>Daily goal</span>
-        <strong>${dailyProgress}/${DAILY_GOAL}</strong>
-      </div>
-    </div>
-  `;
+  return {
+    correct,
+    result: correct ? "Correct" : "Not quite",
+    xpLabel,
+    kicker: correct ? "Momentum" : "Learning moment",
+    title: message.title,
+    explanation: lesson.quizExplanation,
+    motivation: message.body,
+    progress: `${dailyProgress}/${DAILY_GOAL}`,
+    continueLabel: getContinueLabel()
+  };
+}
+
+function showFeedbackPopup(feedback) {
+  elements.feedbackPopup.classList.toggle("is-correct", feedback.correct);
+  elements.feedbackPopup.classList.toggle("is-incorrect", !feedback.correct);
+  elements.popupResultBadge.textContent = feedback.xpLabel;
+  elements.popupKicker.textContent = feedback.kicker;
+  elements.popupTitle.textContent = feedback.title;
+  elements.popupText.textContent = feedback.explanation;
+  elements.popupMotivationTitle.textContent = feedback.result;
+  elements.popupMotivationText.textContent = feedback.motivation;
+  elements.popupProgress.textContent = feedback.progress;
+  elements.popupContinueButton.textContent = feedback.continueLabel;
+  elements.feedbackPopup.hidden = false;
+  window.setTimeout(() => {
+    elements.feedbackPopup.classList.add("is-visible");
+  }, 20);
+}
+
+function hideFeedbackPopup() {
+  if (elements.feedbackPopup.hidden) {
+    return;
+  }
+
+  elements.feedbackPopup.classList.remove("is-visible");
+  window.setTimeout(() => {
+    if (!elements.feedbackPopup.classList.contains("is-visible")) {
+      elements.feedbackPopup.hidden = true;
+    }
+  }, 180);
+}
+
+function playFeedbackSound(correct) {
+  const AudioContext = window.AudioContext || window.webkitAudioContext;
+  if (!AudioContext) {
+    return;
+  }
+
+  try {
+    audioContext = audioContext || new AudioContext();
+    if (audioContext.state === "suspended") {
+      audioContext.resume();
+    }
+
+    if (correct) {
+      playToneSequence([523.25, 659.25, 783.99], 0.08, "triangle", 0.11);
+      return;
+    }
+
+    playToneSequence([246.94, 196], 0.11, "sine", 0.08);
+  } catch {
+    audioContext = null;
+  }
+}
+
+function playToneSequence(frequencies, duration, type, gainValue) {
+  const now = audioContext.currentTime;
+  frequencies.forEach((frequency, index) => {
+    const start = now + index * (duration * 0.82);
+    const oscillator = audioContext.createOscillator();
+    const gain = audioContext.createGain();
+    oscillator.type = type;
+    oscillator.frequency.setValueAtTime(frequency, start);
+    gain.gain.setValueAtTime(0.001, start);
+    gain.gain.exponentialRampToValueAtTime(gainValue, start + 0.015);
+    gain.gain.exponentialRampToValueAtTime(0.001, start + duration);
+    oscillator.connect(gain);
+    gain.connect(audioContext.destination);
+    oscillator.start(start);
+    oscillator.stop(start + duration + 0.02);
+  });
 }
 
 function getContinueLabel() {
