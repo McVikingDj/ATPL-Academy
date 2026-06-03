@@ -115,6 +115,9 @@
               <span class="map-sun"></span>
               <span class="map-cloud one"></span>
               <span class="map-cloud two"></span>
+              <span class="map-cloud three"></span>
+              <span class="map-contrail"></span>
+              <span class="map-plane"></span>
               <span class="map-runway"></span>
             </div>
           </section>
@@ -129,23 +132,48 @@
                 <h3 id="selectedCourseTitle">Principles of Flight</h3>
                 <p id="selectedCourseMeta">0 of 3 tasks complete</p>
               </div>
+              <aside class="flight-fact">
+                <span>Flight fact</span>
+                <p>A wing stalls because it exceeds its critical angle of attack, not because it reaches one fixed speed.</p>
+              </aside>
             </div>
             <div class="path-stage">
               <div class="path-ribbon" aria-hidden="true"></div>
+              <div class="path-aviation-art" aria-hidden="true">
+                <span class="path-plane"></span>
+                <span class="path-cloud cloud-a"></span>
+                <span class="path-cloud cloud-b"></span>
+                <span class="path-altitude">FL080</span>
+              </div>
               <div id="subjectGrid" class="learning-path"></div>
             </div>
           </section>
         </section>
 
         <section id="lessonView" class="view lesson-view" aria-live="polite">
-          <button id="backToDashboard" class="ghost-button" type="button">Back to dashboard</button>
+          <div class="lesson-mission-bar">
+            <button id="backToDashboard" class="ghost-button" type="button">Trail</button>
+            <div>
+              <p class="eyebrow">Training task</p>
+              <strong>Principles of Flight</strong>
+            </div>
+          </div>
           <article class="lesson-card">
+            <div class="lesson-sky-art" aria-hidden="true">
+              <span class="lesson-cloud one"></span>
+              <span class="lesson-cloud two"></span>
+              <span class="lesson-plane"></span>
+            </div>
             <div class="lesson-topline">
               <span id="lessonSubject" class="subject-pill"></span>
               <span id="lessonCounter" class="lesson-counter"></span>
             </div>
             <h2 id="lessonTitle"></h2>
             <div class="lesson-progress" aria-hidden="true"><span id="lessonProgressBar"></span></div>
+            <aside class="lesson-trivia">
+              <span>Flight deck note</span>
+              <p id="lessonTrivia"></p>
+            </aside>
             <section class="lesson-section">
               <h3>Concept</h3>
               <p id="lessonExplanation"></p>

@@ -59,6 +59,8 @@ body {
   min-height: 100vh;
   margin: 0;
   background:
+    radial-gradient(circle at 20% 90px, rgba(255, 255, 255, 0.5) 0 32px, transparent 33px),
+    radial-gradient(circle at 78% 140px, rgba(255, 255, 255, 0.42) 0 24px, transparent 25px),
     linear-gradient(180deg, var(--sky) 0 230px, var(--bg) 230px 100%),
     var(--bg);
   color: var(--text);
@@ -241,6 +243,10 @@ button {
   padding: 10px 12px 102px;
 }
 
+.app-shell.is-lesson-mode {
+  padding-top: 10px;
+}
+
 .topbar {
   position: sticky;
   top: 0;
@@ -252,6 +258,12 @@ button {
   margin: -1px -1px 0;
   padding: 10px 2px 12px;
   background: linear-gradient(180deg, var(--sky) 70%, rgba(189, 235, 240, 0));
+}
+
+.app-shell.is-lesson-mode .topbar,
+.app-shell.is-lesson-mode .hero-strip,
+.app-shell.is-lesson-mode .bottom-nav {
+  display: none;
 }
 
 body.dark .topbar {
@@ -554,6 +566,74 @@ body.dark .journey-hero {
   transform: scale(0.78);
 }
 
+.map-cloud.three {
+  right: 138px;
+  bottom: 34px;
+  transform: scale(0.62);
+}
+
+.map-contrail {
+  position: absolute;
+  right: 60px;
+  top: 68px;
+  width: 118px;
+  height: 3px;
+  border-radius: 999px;
+  background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.86) 0 16px, transparent 16px 25px);
+  transform: rotate(-18deg);
+}
+
+.map-plane,
+.path-plane,
+.lesson-plane {
+  position: absolute;
+  width: 44px;
+  height: 18px;
+  border-radius: 999px 55% 55% 999px;
+  background: #ffffff;
+  box-shadow: 0 8px 18px rgba(24, 50, 41, 0.16);
+}
+
+.map-plane::before,
+.map-plane::after,
+.path-plane::before,
+.path-plane::after,
+.lesson-plane::before,
+.lesson-plane::after {
+  position: absolute;
+  content: "";
+}
+
+.map-plane::before,
+.path-plane::before,
+.lesson-plane::before {
+  left: 17px;
+  top: -11px;
+  width: 19px;
+  height: 38px;
+  border-radius: 70% 70% 4px 4px;
+  background: inherit;
+  transform: rotate(62deg);
+}
+
+.map-plane::after,
+.path-plane::after,
+.lesson-plane::after {
+  left: 4px;
+  top: -5px;
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: #43b3d9;
+  transform: rotate(42deg);
+}
+
+.map-plane {
+  right: 58px;
+  top: 48px;
+  transform: rotate(-18deg);
+}
+
 .map-runway {
   position: absolute;
   right: -38px;
@@ -586,6 +666,18 @@ body.dark .journey-hero {
   padding: 14px;
   text-align: left;
   box-shadow: 0 7px 0 rgba(24, 50, 41, 0.18), 0 16px 28px rgba(24, 50, 41, 0.15);
+}
+
+.course-card::before {
+  position: absolute;
+  right: 16px;
+  bottom: 18px;
+  width: 52px;
+  height: 18px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent 0 10px, rgba(89, 195, 208, 0.28) 10px 100%);
+  content: "";
+  transform: rotate(-10deg);
 }
 
 body.dark .course-card {
@@ -703,6 +795,37 @@ body.dark .course-trail-header {
   font-weight: 850;
 }
 
+.flight-fact,
+.lesson-trivia {
+  padding: 12px;
+  border: 1px solid rgba(67, 179, 217, 0.32);
+  border-radius: 8px;
+  background: rgba(189, 235, 240, 0.42);
+}
+
+body.dark .flight-fact,
+body.dark .lesson-trivia {
+  background: rgba(73, 174, 186, 0.13);
+}
+
+.flight-fact span,
+.lesson-trivia span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--primary-dark);
+  font-size: 0.72rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+}
+
+.flight-fact p,
+.lesson-trivia p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.38;
+}
+
 .path-stage {
   position: relative;
   min-height: 470px;
@@ -711,6 +834,8 @@ body.dark .course-trail-header {
   overflow: hidden;
   border-radius: 8px;
   background:
+    radial-gradient(circle at 86% 10%, rgba(255, 255, 255, 0.34) 0 18px, transparent 19px),
+    radial-gradient(circle at 18% 32%, rgba(255, 255, 255, 0.24) 0 14px, transparent 15px),
     linear-gradient(90deg, transparent 0 14px, rgba(49, 130, 24, 0.18) 14px 18px, transparent 18px 100%),
     linear-gradient(180deg, var(--grass), var(--grass-dark));
 }
@@ -783,6 +908,72 @@ body.dark .course-trail-header {
   display: grid;
   gap: 18px;
   padding: 0 14px;
+}
+
+.path-aviation-art {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.path-plane {
+  right: 34px;
+  top: 72px;
+  transform: rotate(-26deg) scale(0.82);
+  opacity: 0.92;
+}
+
+.path-cloud {
+  position: absolute;
+  width: 64px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.path-cloud::before,
+.path-cloud::after {
+  position: absolute;
+  bottom: 6px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  background: inherit;
+  content: "";
+}
+
+.path-cloud::before {
+  left: 11px;
+}
+
+.path-cloud::after {
+  right: 9px;
+}
+
+.path-cloud.cloud-a {
+  left: 18px;
+  top: 34px;
+  transform: scale(0.82);
+}
+
+.path-cloud.cloud-b {
+  right: 14px;
+  bottom: 66px;
+  transform: scale(0.66);
+}
+
+.path-altitude {
+  position: absolute;
+  right: 18px;
+  top: 22px;
+  border: 1px solid rgba(255, 255, 255, 0.54);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  color: rgba(255, 255, 255, 0.88);
+  padding: 6px 9px;
+  font-size: 0.68rem;
+  font-weight: 1000;
 }
 
 .path-node {
@@ -894,11 +1085,96 @@ body.dark .path-node {
   margin: 0 auto;
 }
 
+.lesson-mission-bar {
+  position: sticky;
+  top: 0;
+  z-index: 22;
+  display: grid;
+  align-items: center;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+  margin-bottom: 10px;
+  padding: 10px 0 12px;
+  background: linear-gradient(180deg, var(--sky) 75%, rgba(189, 235, 240, 0));
+}
+
+body.dark .lesson-mission-bar {
+  background: linear-gradient(180deg, var(--sky) 75%, rgba(24, 60, 67, 0));
+}
+
+.lesson-mission-bar .ghost-button {
+  margin-bottom: 0;
+}
+
+.lesson-mission-bar strong {
+  display: block;
+  line-height: 1;
+}
+
 .lesson-card {
+  position: relative;
+  overflow: hidden;
   padding: 18px;
 }
 
+.lesson-sky-art {
+  position: absolute;
+  inset: 0;
+  height: 140px;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(189, 235, 240, 0.38), transparent);
+}
+
+.lesson-cloud {
+  position: absolute;
+  display: block;
+  width: 62px;
+  height: 22px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.lesson-cloud::before,
+.lesson-cloud::after {
+  position: absolute;
+  bottom: 6px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: inherit;
+  content: "";
+}
+
+.lesson-cloud::before {
+  left: 9px;
+}
+
+.lesson-cloud::after {
+  right: 8px;
+}
+
+.lesson-cloud.one {
+  right: 26px;
+  top: 20px;
+  transform: scale(0.8);
+}
+
+.lesson-cloud.two {
+  left: 20px;
+  top: 74px;
+  transform: scale(0.62);
+}
+
+.lesson-plane {
+  right: 28px;
+  top: 72px;
+  transform: rotate(-18deg) scale(0.72);
+  background: #f8ffff;
+}
+
 .lesson-topline {
+  position: relative;
+  z-index: 2;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -923,12 +1199,22 @@ body.dark .path-node {
 }
 
 .lesson-card h2 {
+  position: relative;
+  z-index: 2;
   font-size: clamp(1.7rem, 8vw, 2.7rem);
   line-height: 1.03;
 }
 
 .lesson-progress {
+  position: relative;
+  z-index: 2;
   margin: 20px 0;
+}
+
+.lesson-trivia {
+  position: relative;
+  z-index: 2;
+  margin-bottom: 18px;
 }
 
 .lesson-section {

@@ -61,6 +61,11 @@ const MOTIVATION_MESSAGES = {
     }
   ]
 };
+const LESSON_TRIVIA = {
+  "pof-angle-of-attack": "A stall is an angle-of-attack problem. Airspeed only changes where that angle is reached in a specific configuration.",
+  "pof-induced-drag": "Induced drag is the price of lift. It grows during slow flight because the wing needs a higher lift coefficient.",
+  "pof-load-factor": "At 60 degrees of bank in level flight, load factor is about 2 g, so stall speed rises by roughly 41 percent."
+};
 
 const subjects = window.ATPL_LESSONS;
 let audioContext = null;
@@ -107,6 +112,7 @@ const elements = {
   lessonCounter: document.getElementById("lessonCounter"),
   lessonTitle: document.getElementById("lessonTitle"),
   lessonProgressBar: document.getElementById("lessonProgressBar"),
+  lessonTrivia: document.getElementById("lessonTrivia"),
   lessonExplanation: document.getElementById("lessonExplanation"),
   lessonRelevance: document.getElementById("lessonRelevance"),
   lessonExample: document.getElementById("lessonExample"),
@@ -457,6 +463,7 @@ function renderStats() {
 function showView(viewName) {
   hideFeedbackPopup();
   state.view = viewName;
+  elements.appShell.classList.toggle("is-lesson-mode", viewName === "lesson");
   document.querySelectorAll(".view").forEach((view) => view.classList.remove("active-view"));
   document.getElementById(`${viewName}View`).classList.add("active-view");
   document.querySelectorAll("[data-view]").forEach((button) => {
@@ -505,6 +512,7 @@ function renderLesson() {
     ? `Step ${pathItem.pathIndex + 1} of ${learningPath(state.subjectKey).length}`
     : `Lesson ${state.lessonIndex + 1} of ${subject.lessons.length}`;
   elements.lessonTitle.textContent = lesson.title;
+  elements.lessonTrivia.textContent = LESSON_TRIVIA[lesson.id] || "Keep the rule tied to the aircraft state, not just the memorized phrase.";
   elements.lessonExplanation.textContent = lesson.explanation;
   elements.lessonRelevance.textContent = lesson.relevance;
   elements.lessonExample.textContent = lesson.example;
