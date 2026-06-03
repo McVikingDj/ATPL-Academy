@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="ATPL Academy concept learning app">
+    <title>ATPL Academy</title>
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <main id="loginScreen" class="login-screen">
+      <section class="login-panel" aria-labelledby="loginTitle">
+        <div class="brand-mark" aria-hidden="true">
+          <span class="wing"></span>
+          <span class="radar"></span>
+        </div>
+        <p class="eyebrow">ATPL concept build</p>
+        <h1 id="loginTitle">ATPL Academy</h1>
+        <p class="login-copy">Short lessons, targeted checks, and daily momentum for serious ATPL theory prep.</p>
+        <form id="loginForm" class="login-form">
+          <label for="passwordInput">Access password</label>
+          <div class="password-row">
+            <input id="passwordInput" type="password" autocomplete="current-password" placeholder="Enter password" required>
+            <button class="primary-button" type="submit">Enter</button>
+          </div>
+          <p id="loginError" class="form-error" role="alert"></p>
+        </form>
+        <div class="login-meta">
+          <span>Micro-lessons</span>
+          <span>XP streaks</span>
+          <span>Subject mastery</span>
+        </div>
+      </section>
+    </main>
+
+    <div id="appShell" class="app-shell" hidden>
+      <header class="topbar">
+        <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Open menu">Menu</button>
+        <div>
+          <p class="eyebrow">v0.1 concept build</p>
+          <h1>ATPL Academy</h1>
+        </div>
+        <nav id="desktopNav" class="desktop-nav" aria-label="Primary navigation">
+          <button class="nav-button active" type="button" data-view="dashboard">Dashboard</button>
+          <button class="nav-button" type="button" data-view="stats">Stats</button>
+          <button class="nav-button" type="button" data-view="settings">Settings</button>
+        </nav>
+        <button id="themeToggle" class="icon-button" type="button" aria-label="Toggle dark mode">Dark</button>
+      </header>
+
+      <aside id="mobileMenu" class="mobile-menu" aria-label="Mobile navigation" hidden>
+        <button class="nav-button active" type="button" data-view="dashboard">Dashboard</button>
+        <button class="nav-button" type="button" data-view="stats">Stats</button>
+        <button class="nav-button" type="button" data-view="settings">Settings</button>
+      </aside>
+
+      <section class="hero-strip" aria-label="Progress summary">
+        <div class="summary-card total-xp">
+          <span class="metric-label">Total XP</span>
+          <strong id="xpValue">0</strong>
+        </div>
+        <div class="summary-card">
+          <span class="metric-label">Current streak</span>
+          <strong><span id="streakValue">0</span> days</strong>
+        </div>
+        <div class="summary-card">
+          <span class="metric-label">Lessons done</span>
+          <strong id="completedValue">0</strong>
+        </div>
+        <div class="summary-card goal-card">
+          <span class="metric-label">Daily goal</span>
+          <strong><span id="dailyGoalValue">0</span>/3</strong>
+          <div class="mini-progress" aria-hidden="true"><span id="dailyGoalBar"></span></div>
+        </div>
+      </section>
+
+      <main class="content-shell">
+        <section id="dashboardView" class="view active-view" aria-labelledby="dashboardTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Training path</p>
+              <h2 id="dashboardTitle">Choose your next ATPL subject</h2>
+            </div>
+            <button id="continueButton" class="secondary-button" type="button">Continue latest</button>
+          </div>
+
+          <section class="changelog" aria-labelledby="changelogTitle">
+            <div>
+              <p class="eyebrow">Changelog</p>
+              <h3 id="changelogTitle">v0.1 concept build</h3>
+            </div>
+            <ul>
+              <li>Password gate, dashboard, lesson flow, XP, streaks, and stats.</li>
+              <li>Three sample micro-lessons for each ATPL subject.</li>
+              <li>Progress persists locally and review mode avoids repeating new lessons.</li>
+            </ul>
+          </section>
+
+          <div id="subjectGrid" class="subject-grid"></div>
+        </section>
+
+        <section id="lessonView" class="view lesson-view" aria-live="polite">
+          <button id="backToDashboard" class="ghost-button" type="button">Back to dashboard</button>
+          <article class="lesson-card">
+            <div class="lesson-topline">
+              <span id="lessonSubject" class="subject-pill"></span>
+              <span id="lessonCounter" class="lesson-counter"></span>
+            </div>
+            <h2 id="lessonTitle"></h2>
+            <div class="lesson-progress" aria-hidden="true"><span id="lessonProgressBar"></span></div>
+            <section class="lesson-section">
+              <h3>Concept</h3>
+              <p id="lessonExplanation"></p>
+            </section>
+            <section class="lesson-section relevance-section">
+              <h3>ATPL relevance</h3>
+              <p id="lessonRelevance"></p>
+            </section>
+            <section class="lesson-section example-section">
+              <h3>Example</h3>
+              <p id="lessonExample"></p>
+            </section>
+            <section class="quiz-panel" aria-labelledby="quizQuestion">
+              <p class="eyebrow">Mini quiz</p>
+              <h3 id="quizQuestion"></h3>
+              <div id="answerOptions" class="answer-options"></div>
+              <div id="answerFeedback" class="answer-feedback" hidden></div>
+              <button id="continueLessonButton" class="primary-button continue-lesson" type="button" disabled>Continue</button>
+            </section>
+          </article>
+        </section>
+
+        <section id="statsView" class="view" aria-labelledby="statsTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Performance</p>
+              <h2 id="statsTitle">Your ATPL Academy stats</h2>
+            </div>
+          </div>
+          <div id="statsGrid" class="stats-grid"></div>
+          <section class="progress-table" aria-labelledby="progressTitle">
+            <h3 id="progressTitle">Subject completion</h3>
+            <div id="subjectProgressList"></div>
+          </section>
+        </section>
+
+        <section id="settingsView" class="view" aria-labelledby="settingsTitle">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Preferences</p>
+              <h2 id="settingsTitle">Settings</h2>
+            </div>
+          </div>
+          <div class="settings-grid">
+            <article class="settings-card">
+              <h3>Appearance</h3>
+              <p>Switch between light and dark training modes.</p>
+              <button id="settingsThemeToggle" class="secondary-button" type="button">Toggle theme</button>
+            </article>
+            <article class="settings-card danger-card">
+              <h3>Progress reset</h3>
+              <p>Clear local XP, streaks, completed lessons, and subject progress on this device.</p>
+              <button id="resetProgressButton" class="danger-button" type="button">Reset progress</button>
+            </article>
+            <article class="settings-card">
+              <h3>Access</h3>
+              <p>Sign out of the prototype password gate on this device.</p>
+              <button id="signOutButton" class="secondary-button" type="button">Sign out</button>
+            </article>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="lessons.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
