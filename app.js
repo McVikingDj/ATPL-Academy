@@ -4,6 +4,32 @@ const AUTH_KEY = "atplAcademyAuthenticated";
 const THEME_KEY = "atplAcademyTheme";
 const DAILY_GOAL = 3;
 const XP_PER_CORRECT_LESSON = 10;
+const CHALLENGE_TYPES = [
+  {
+    label: "Concept",
+    short: "C",
+    tone: "concept",
+    description: "Build the idea"
+  },
+  {
+    label: "Check",
+    short: "Q",
+    tone: "check",
+    description: "Choose the answer"
+  },
+  {
+    label: "Scenario",
+    short: "S",
+    tone: "scenario",
+    description: "Apply it like crew"
+  },
+  {
+    label: "Mastery",
+    short: "M",
+    tone: "mastery",
+    description: "Lock it in"
+  }
+];
 const MOTIVATION_MESSAGES = {
   correct: [
     {
@@ -204,6 +230,37 @@ function totalCompletedCount() {
   return subjectKeys().reduce((sum, key) => sum + completedCount(key), 0);
 }
 
+function learningPath() {
+  return subjectKeys().flatMap((subjectKey) => {
+    const subject = subjects[subjectKey];
+    return subject.lessons.map((lesson, lessonIndex) => {
+      const pathIndex = subjectKeys()
+        .slice(0, subjectKeys().indexOf(subjectKey))
+        .reduce((sum, key) => sum + subjects[key].lessons.length, 0) + lessonIndex;
+      return {
+        subjectKey,
+        subject,
+        lesson,
+        lessonIndex,
+        pathIndex,
+        challenge: CHALLENGE_TYPES[pathIndex % CHALLENGE_TYPES.length]
+      };
+    });
+  });
+}
+
+function firstUncompletedPathIndex() {
+  const path = learningPath();
+  const index = path.findIndex((item) => !completedSet(item.subjectKey).has(item.lesson.id));
+  return index === -1 ? path.length : index;
+}
+
+function currentPathItem() {
+  return learningPath().find((item) => (
+    item.subjectKey === state.subjectKey && item.lessonIndex === state.lessonIndex
+  ));
+}
+
 function subjectPercent(subjectKey) {
   const total = subjects[subjectKey].lessons.length;
   return Math.round((completedCount(subjectKey) / total) * 100);
@@ -233,43 +290,34 @@ function renderSummary() {
 
 function renderSubjects() {
   elements.subjectGrid.innerHTML = "";
+  const path = learningPath();
+  const activeIndex = firstUncompletedPathIndex();
 
-  subjectKeys().forEach((subjectKey) => {
-    const subject = subjects[subjectKey];
-    const completed = completedCount(subjectKey);
-    const total = subject.lessons.length;
-    const percent = subjectPercent(subjectKey);
-    const isComplete = completed === total;
-
-    const card = document.createElement("article");
-    card.className = "subject-card";
-    card.style.setProperty("--subject-color", subject.accent);
-    card.innerHTML = `
-      <h3>${subject.title}</h3>
-      <p>${completed} of ${total} lessons completed</p>
-      <div class="progress-meta">
-        <span>${percent}% complete</span>
-        <span>${total - completed} new left</span>
-      </div>
-      <div class="progress-bar" aria-hidden="true"><span style="width: ${percent}%"></span></div>
-      <div class="subject-card-actions">
-        <button class="primary-button" type="button" data-start="${subjectKey}">${isComplete ? "Review subject" : "Start learning"}</button>
-        ${completed > 0 && !isComplete ? `<button class="secondary-button" type="button" data-review="${subjectKey}">Review</button>` : ""}
-      </div>
+  path.forEach((item) => {
+    const completed = completedSet(item.subjectKey).has(item.lesson.id);
+    const active = item.pathIndex === activeIndex;
+    const locked = item.pathIndex > activeIndex;
+    const node = document.createElement("button");
+    node.className = `path-node ${item.pathIndex % 2 ? "is-right" : "is-left"} ${completed ? "is-complete" : ""} ${active ? "is-active" : ""} ${locked ? "is-locked" : ""}`;
+    node.type = "button";
+    node.disabled = locked;
+    node.style.setProperty("--subject-color", item.subject.accent);
+    node.innerHTML = `
+      <span class="node-orbit ${item.challenge.tone}">
+        <span class="node-icon">${locked ? "L" : item.challenge.short}</span>
+      </span>
+      <span class="node-copy">
+        <span class="node-kicker">${item.challenge.label} - ${item.subject.title}</span>
+        <strong>${item.lesson.title}</strong>
+        <span>${completed ? "Completed - review unlocked" : active ? item.challenge.description : "Complete earlier steps first"}</span>
+      </span>
     `;
-    elements.subjectGrid.appendChild(card);
-  });
-
-  elements.subjectGrid.querySelectorAll("[data-start]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const subjectKey = button.dataset.start;
-      const isComplete = completedCount(subjectKey) === subjects[subjectKey].lessons.length;
-      startLesson(subjectKey, firstUncompletedLessonIndex(subjectKey), isComplete);
+    node.addEventListener("click", () => {
+      if (!locked) {
+        startLesson(item.subjectKey, item.lessonIndex, completed);
+      }
     });
-  });
-
-  elements.subjectGrid.querySelectorAll("[data-review]").forEach((button) => {
-    button.addEventListener("click", () => startLesson(button.dataset.review, 0, true));
+    elements.subjectGrid.appendChild(node);
   });
 }
 
@@ -311,16 +359,15 @@ function showView(viewName) {
 }
 
 function continueLatest() {
-  const preferredSubject = state.progress.lastSubjectKey && subjects[state.progress.lastSubjectKey]
-    ? state.progress.lastSubjectKey
-    : subjectKeys().find((key) => completedCount(key) < subjects[key].lessons.length);
+  const path = learningPath();
+  const activeIndex = firstUncompletedPathIndex();
+  const activeItem = path[activeIndex] || path[0];
 
-  if (!preferredSubject) {
-    startLesson(subjectKeys()[0], 0, true);
+  if (!activeItem) {
     return;
   }
 
-  startLesson(preferredSubject, firstUncompletedLessonIndex(preferredSubject), false);
+  startLesson(activeItem.subjectKey, activeItem.lessonIndex, activeIndex >= path.length);
 }
 
 function startLesson(subjectKey, lessonIndex, reviewMode) {
@@ -342,7 +389,13 @@ function renderLesson() {
   const percent = ((state.lessonIndex + 1) / subject.lessons.length) * 100;
 
   elements.lessonSubject.textContent = state.reviewMode ? `${subject.title} review` : subject.title;
-  elements.lessonCounter.textContent = `Lesson ${state.lessonIndex + 1} of ${subject.lessons.length}`;
+  const pathItem = currentPathItem();
+  elements.lessonSubject.textContent = pathItem
+    ? `${pathItem.challenge.label} - ${subject.title}`
+    : subject.title;
+  elements.lessonCounter.textContent = pathItem
+    ? `Step ${pathItem.pathIndex + 1} of ${totalLessonCount()}`
+    : `Lesson ${state.lessonIndex + 1} of ${subject.lessons.length}`;
   elements.lessonTitle.textContent = lesson.title;
   elements.lessonExplanation.textContent = lesson.explanation;
   elements.lessonRelevance.textContent = lesson.relevance;
@@ -422,9 +475,11 @@ function buildFeedback(correct, lesson) {
 }
 
 function getContinueLabel() {
-  const subject = subjects[state.subjectKey];
-  const nextIndex = state.lessonIndex + 1;
-  return nextIndex < subject.lessons.length ? "Next question" : "Finish subject";
+  const pathItem = currentPathItem();
+  if (!pathItem) {
+    return "Continue";
+  }
+  return pathItem.pathIndex < learningPath().length - 1 ? "Next challenge" : "Finish path";
 }
 
 function completeLesson(lesson, correct) {
@@ -459,27 +514,17 @@ function updateDailyStreak() {
 }
 
 function moveToNextLesson() {
-  const subject = subjects[state.subjectKey];
-  const nextIndex = state.lessonIndex + 1;
-
-  if (nextIndex < subject.lessons.length) {
-    if (state.reviewMode || !completedSet(state.subjectKey).has(subject.lessons[nextIndex].id)) {
-      state.lessonIndex = nextIndex;
-      state.answered = false;
-      renderLesson();
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      return;
-    }
+  if (state.reviewMode) {
+    showView("dashboard");
+    return;
   }
 
-  const nextUncompleted = firstUncompletedLessonIndex(state.subjectKey);
-  const subjectComplete = completedCount(state.subjectKey) === subject.lessons.length;
+  const path = learningPath();
+  const pathItem = currentPathItem();
+  const nextItem = pathItem ? path[pathItem.pathIndex + 1] : null;
 
-  if (!subjectComplete && nextUncompleted !== state.lessonIndex) {
-    state.lessonIndex = nextUncompleted;
-    state.answered = false;
-    renderLesson();
-    window.scrollTo({ top: 0, behavior: "smooth" });
+  if (nextItem) {
+    startLesson(nextItem.subjectKey, nextItem.lessonIndex, false);
     return;
   }
 

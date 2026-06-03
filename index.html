@@ -37,7 +37,7 @@
       <header class="topbar">
         <button id="menuButton" class="icon-button menu-button" type="button" aria-label="Open menu">Menu</button>
         <div>
-          <p class="eyebrow">v0.1 concept build</p>
+          <p class="eyebrow">Flight path</p>
           <h1>ATPL Academy</h1>
         </div>
         <nav id="desktopNav" class="desktop-nav" aria-label="Primary navigation">
@@ -62,15 +62,15 @@
 
       <section class="hero-strip" aria-label="Progress summary">
         <div class="summary-card total-xp">
-          <span class="metric-label">Total XP</span>
+          <span class="metric-label">XP</span>
           <strong id="xpValue">0</strong>
         </div>
         <div class="summary-card">
-          <span class="metric-label">Current streak</span>
+          <span class="metric-label">Streak</span>
           <strong><span id="streakValue">0</span> days</strong>
         </div>
         <div class="summary-card">
-          <span class="metric-label">Lessons done</span>
+          <span class="metric-label">Steps</span>
           <strong id="completedValue">0</strong>
         </div>
         <div class="summary-card goal-card">
@@ -82,15 +82,25 @@
 
       <main class="content-shell">
         <section id="dashboardView" class="view active-view" aria-labelledby="dashboardTitle">
-          <div class="section-heading">
-            <div>
-              <p class="eyebrow">Training path</p>
-              <h2 id="dashboardTitle">Choose your next ATPL subject</h2>
+          <section class="journey-hero" aria-labelledby="dashboardTitle">
+            <div class="journey-copy">
+              <p class="eyebrow">Today route</p>
+              <h2 id="dashboardTitle">Follow the ATPL trail</h2>
+              <p>Small checks, scenarios, and mastery stops keep the big syllabus moving one step at a time.</p>
             </div>
-            <button id="continueButton" class="secondary-button" type="button">Continue latest</button>
-          </div>
+            <button id="continueButton" class="primary-button" type="button">Continue route</button>
+            <div class="map-scene" aria-hidden="true">
+              <span class="map-sun"></span>
+              <span class="map-cloud one"></span>
+              <span class="map-cloud two"></span>
+              <span class="map-runway"></span>
+            </div>
+          </section>
 
-          <div id="subjectGrid" class="subject-grid"></div>
+          <div class="path-stage">
+            <div class="path-ribbon" aria-hidden="true"></div>
+            <div id="subjectGrid" class="learning-path"></div>
+          </div>
         </section>
 
         <section id="lessonView" class="view lesson-view" aria-live="polite">
